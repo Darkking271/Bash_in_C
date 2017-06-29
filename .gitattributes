@@ -1,4 +1,5 @@
 *.rb linguist-language=C
+cmake-build-debug/* linguist-vendored
 
 # Auto detect text files and perform LF normalization
 * text=auto
