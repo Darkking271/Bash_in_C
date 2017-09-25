@@ -1,7 +1,7 @@
 /*
  * File:   main.c
  * Authors: Alex Voytovich
- *          Marcus Giarusso
+ *          Marcus Giarusso (not really tho)
  *
  * This assignment is written as a C program which produces auto-complete
  * suggestions, similar to what Bash does when beginning to type a command and
@@ -13,12 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <errno.h>
 #include <stdbool.h>
-#include <string.h>
+#include <ctype.h>
 
 void parseDir(char[]);
 int retrieveId(char);
@@ -26,17 +24,16 @@ bool checkequal(char[], char[], int);
 
 typedef struct node
 {
-    char * x[100];
+    char x[100];
     struct node * next;
-} node_t;
+} linked_node;
 
 /*
  *
  */
-int main(int argc, char** argv)
+int main()
 {
     char dirname[100];
-
     //User enters wanted directory
     printf( "Enter a directory :");
     scanf("%s", dirname);
@@ -49,11 +46,11 @@ int main(int argc, char** argv)
 void parseDir(char dirname[100])
 {
     //Initialize linked list array
-    node_t * list[27];
+    linked_node * list[27];
     for(int i = 0; i < 27; i++)
     {
         list[i] = NULL;
-        list[i] = malloc(sizeof(node_t));
+        list[i] = malloc(sizeof(linked_node));
     }
 
     //Initialize directing reading tools
@@ -67,16 +64,16 @@ void parseDir(char dirname[100])
     {
         while ((direxp = readdir(dir)) != NULL)
         {
-            strcpy(str, direxp -> d_name);
-            int a = str[0];
+            strcpy(*str, direxp -> d_name);
+            char a = *str[0];
             int n = retrieveId(a);
-            node_t * current = list[n];
+            linked_node * current = list[n];
             while (current->next != NULL)
             {
                 current = current->next;
             }
-            current->next = malloc(sizeof(node_t));
-            strcpy(current->next->x, str);
+            current->next = malloc(sizeof(linked_node));
+            strcpy(current->next->x, *str);
             current->next->next = NULL;
         }
         closedir(dir);
@@ -95,8 +92,8 @@ void parseDir(char dirname[100])
         printf("\n(0 to quit) Search: ");
         scanf("%s", file);
         int b = retrieveId(file[0]);
-        int len = strlen(file);
-        node_t* node = list[b];
+        int len = (int) strlen(file);
+        linked_node* node = list[b];
         while (node != NULL)
         {
             //Check if strings are equal, and if they are, print it
@@ -126,16 +123,11 @@ int retrieveId(char a)
 //Function for comparing strings
 bool checkequal(char a[], char b[], int len)
 {
-    bool status = false;
     for (int i = 0; i < len; i++)
     {
-        if (tolower(a[i]) == tolower(b[i]))
-            status = true;
-        else
-        {
-            status = false;
-            break;
+        if (tolower(a[i]) != tolower(b[i])){
+            return false;
         }
     }
-    return status;
+    return true;
 }
