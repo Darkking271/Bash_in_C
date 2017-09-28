@@ -18,21 +18,23 @@
 #include <stdbool.h>
 #include <ctype.h>
 
-void parseDir(char[]);
-int retrieveId(char);
-bool checkequal(char[], char[], int);
-
 typedef struct node
 {
     char x[100];
     struct node * next;
 } linked_node;
 
+void parseDir(char[]);
+void free_lists(linked_node *lists[27]);
+void free_list(linked_node *list);
+int retrieveId(char);
+bool checkequal(char[], char[], int);
+
+
 /*
  *
  */
-int main()
-{
+int main(){
     char dirname[100];
     //User enters wanted directory
     printf( "Enter a directory :");
@@ -43,13 +45,10 @@ int main()
     return 0;
 }
 
-void parseDir(char dirname[100])
-{
+void parseDir(char dirname[100]) {
     //Initialize linked list array
     linked_node * list[27];
-    for(int i = 0; i < 27; i++)
-    {
-        list[i] = NULL;
+    for(int i = 0; i < 27; i++) {
         list[i] = malloc(sizeof(linked_node));
     }
 
@@ -60,8 +59,7 @@ void parseDir(char dirname[100])
     char *str[100];
 
     //Parse directory, and sort into lists
-    if(dir != NULL)
-    {
+    if(dir != NULL) {
         while ((direxp = readdir(dir)) != NULL)
         {
             strcpy(*str, direxp -> d_name);
@@ -78,8 +76,7 @@ void parseDir(char dirname[100])
         }
         closedir(dir);
     }
-    else
-    {
+    else {
         //If directory doesn't exist, tell user, and end program
         printf("Directory Not Found!");
         return;
@@ -87,8 +84,7 @@ void parseDir(char dirname[100])
 
     //Search files in directory
     char file[30];
-    while(!checkequal(file, "0", 1))
-    {
+    while(!checkequal(file, "0", 1)) {
         printf("\n(0 to quit) Search: ");
         scanf("%s", file);
         int b = retrieveId(file[0]);
@@ -106,11 +102,23 @@ void parseDir(char dirname[100])
         }
         //printf("\n(0 to quit) Search: ");
     }
+    free_lists(list);
+}
+
+void free_lists(linked_node *lists[27]){
+    for(int i = 0; i < 27; ++i){
+        free_list(lists[i]);
+    }
+}
+
+void free_list(linked_node *list){
+    if(list->next != NULL)
+        free_list(list->next);
+    free(list);
 }
 
 //Hashing function
-int retrieveId(char a)
-{
+int retrieveId(char a) {
     a = tolower(a);
     int x;
     if (isalpha(a))
@@ -123,8 +131,7 @@ int retrieveId(char a)
 //Function for comparing strings
 bool checkequal(char a[], char b[], int len)
 {
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
         if (tolower(a[i]) != tolower(b[i])){
             return false;
         }
